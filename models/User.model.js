@@ -39,7 +39,7 @@ UserSchema.pre("save", function (next) {
   }
 });
 
-UserSchema.methods.checkpassword = function(password){
+UserSchema.methods.checkPassword = function(password){
   return bcrypt.compare(password, this.password)
 }
 
