@@ -20,7 +20,21 @@ module.exports.doRegister = (req, res, next) => {
           },
           errors: err.errors,
         });
+      } else if (err.code === 11000) {
+        // Handle MongoDB Duplicate Key Errors
+        // Customize the error message based on the field causing the issue
+        const field = Object.keys(err.keyValue)[0]; // Extract the field causing the conflict
+        const value = err.keyValue[field]; // Extract the conflicting value
+        res.render("register", {
+          user: {
+            email: req.body.email,
+          },
+          errors: {
+            password: "Email or password incorrect"
+          },
+        });
       } else {
+        console.log("***Register error2*** -->>>");
         next(err);
       }
     });
@@ -41,21 +55,20 @@ module.exports.doLogin = (req, res, next) => {
   };
 
   User.findOne({ email })
-  .then((user) => {
-    if (user) {
-      return user.checkPassword(password)
-      .then((match) => {
-        if (match) {
-          req.session.userId = user.id; // genero cookie y session
-          res.redirect("/profile");
-        } else {
-          console.log("Email o contraseña incorrectos"); // contraseña incorrecta
-          renderWithErrors();
-        }
-      });
-    } 
-  })
-  .catch((err) => next(err));
+    .then((user) => {
+      if (user) {
+        return user.checkPassword(password).then((match) => {
+          if (match) {
+            req.session.userId = user.id; // genero cookie y session
+            res.redirect("/profile");
+          } else {
+            console.log("Email o contraseña incorrectos"); // contraseña incorrecta
+            renderWithErrors();
+          }
+        });
+      }
+    })
+    .catch((err) => next(err));
 };
 
 module.exports.loggedIn = (req, res, next) => {
