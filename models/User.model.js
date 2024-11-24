@@ -17,7 +17,7 @@ const UserSchema = new Schema({
     unique: true,
     match: [EMAIL_PATTERN, "Email is invalid"],
     trim: true,
-    lowecase: true,
+    lowercase: true,
   },
   password: {
     type: String,
